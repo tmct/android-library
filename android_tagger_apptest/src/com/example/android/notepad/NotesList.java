@@ -16,6 +16,9 @@
 
 package com.example.android.notepad;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.ContentUris;
@@ -64,9 +67,11 @@ public class NotesList extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		Map<String, String> staticTealiumVariables = new HashMap<String, String>();
+		staticTealiumVariables.put("testKey1", "testValue1");
+		staticTealiumVariables.put("testKey2", "testValue2");
 		tealium = new TealiumTagger(this, TealiumConstants.ACCOUNT, TealiumConstants.PROFILE,
-				TealiumConstants.ENVIRONMENT);
+				TealiumConstants.ENVIRONMENT, staticTealiumVariables);
 		setDefaultKeyMode(DEFAULT_KEYS_SHORTCUT);
 
 		// If no data was given in the intent (because we were started

@@ -8,6 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONObject;
 
+import com.tealium.mobile.android.TealiumLifecycle.CallTypes;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -22,10 +25,12 @@ import android.webkit.WebViewClient;
 
 /**
  * 
+ * <h2>Version 1.2</h2>
+ * 
  * <h2>Introduction</h2>
  * 
  * <p>This library provides Tealium customers the means to tag their native
- * iOS applications for the purpose of leveraging the vendor-neutral tag management
+ * Android applications for the purpose of leveraging the vendor-neutral tag management
  * platform offered by Tealium.</p>
  * 
  * <p>It provides:</p>
@@ -43,18 +48,29 @@ import android.webkit.WebViewClient;
  * 
  * <ul>
  * <li>Your Tealium Account Id (it will likely be your company name)</li>
- * <li>The Tealium Profile name to be associated with the app (your account may have several profiles, ideally one of them is dedicated to your iOS app)</li>
+ * <li>The Tealium Profile name to be associated with the app (your account may have several profiles, ideally one of them is dedicated to your Android app)</li>
  * <li>The Tealium environment to use (this will be one of these values: 'prod', 'qa', or 'dev')</li>
  * </ul>
  * 
+ *  <h2> Requirements </h2>
+ *  This Android library requires Android 2.2 (API Level 8) and above.
+ *
  *  <h2>Installation - Source</h2>
  *  If directly compiling source is preferred, simply place this source file
  *  into your source path, in the proper package directory.
  *  
  *  <h2>Installation - Jar Library</h2>
  *  If a binary jar file is preferred, get the jar file from the github repo
- *  located at github.com/Tealium/android-tracker and include it utilizing 
+ *  located at github.com/Tealium/android-tagger and include it utilizing 
  *  your preferred project management strategy (ant, maven, etc). 
+ *  <h2>
+ *  
+ *  <h2>Installation - Use Permissions</h2>
+ *  The library requires the following permission be granted in the app manifest file:
+ *  <ul>
+ *  <li>ACCESS_NETWORK_STATE</li>
+ *  <li>INTERNET</li>
+ *  </ul>
  *  <h2>
  *  
  * <h2>Usage</h2>
@@ -134,6 +150,10 @@ import android.webkit.WebViewClient;
  * </pre>
  *
  */
+
+// Created by Charles Glommen
+// Extended by Jason Koo
+
 public final class TealiumTagger {
 
 	private static final String TAG = "TEALIUM TAGGER";
@@ -150,8 +170,13 @@ public final class TealiumTagger {
 	private boolean tealiumEnabled;
 	private boolean webViewIsReady;
 	private boolean hasInternetConnection;
+	private boolean loadingVarsReady;
 	private boolean queueFlushTimerIsRunning;
+	
+	private TealiumProcessingCenter processingCenter;
+	public TealiumLifecycle lifecycle;
 
+	
 	/** 
 	 * An instance of TealiumTagger must be created during the onCreate() method of all activities.
 	 * Please keep a reference to this tagger instance in your activity, so that it can be used
@@ -160,6 +185,10 @@ public final class TealiumTagger {
 	 * NOTE: the creation of this instance assumes the activity will be displayed, and will 
 	 * invoke a traditional 'page view' request into the utag platform.
 	 * 
+	 * OPTIONAL: if you wish to delay the initialization sequence for some additional process to complete
+	 * then use the TealiumTagger(Activity, AccountString, ProfileString, TargetString, Map, ReadyBoolean)
+	 * method.
+	 * 
 	 * @param activity - The activity in which this instance is being instantiated
 	 * @param account - The tealium account name (likely your company name)
 	 * @param profile - The tealium profile being associated with this android app. 
@@ -167,21 +196,37 @@ public final class TealiumTagger {
 	 * @param environment - must be one of these values: 'dev', 'prod', or 'qa'.
 	 */
 	public TealiumTagger(Activity activity, String account, String profile, String environment) {
-		this(activity, account, profile, environment, null);
+		this(activity, account, profile, environment, null, true);
 	}
-
+	
 	/** 
 	 * This method calls TealiumTagger(Activity, String, String, String) while also allowing 
 	 * a custom set of name/value pairs to be passed with each call into the utag platform.   
 	 */
 	public TealiumTagger(Activity activity, String account, String profile, String environment,
 			Map<String, String> variables) {
+		this(activity, account, profile, environment, variables, true);
+	}
+	
+
+	/** 
+	 * This method calls TealiumTagger(Activity, String, String, String) while also allowing 
+	 * a custom set of name/value pairs to be passed with each call into the utag platform and
+	 * provides for the optional ready flag for optionally delay the wake sequence (and the default auto track view call)
+	 * for some other process to complete. If the "ready" argument is "false" then the loadingAutotrackScreenViewReady
+	 * call MUST be made when the desired data has become available to complete the wake sequence.   
+	 */
+	public TealiumTagger(Activity activity, String account, String profile, String environment,
+			Map<String, String> variables, boolean ready) {
 		this.activity = activity;
 		this.account = account;
 		this.profile = profile;
 		this.environment = environment;
+		this.loadingVarsReady = ready;
+		this.processingCenter = new TealiumProcessingCenter(this.activity, this);
+		this.lifecycle = new TealiumLifecycle(this.activity, this);
 		baseVariables = new HashMap<String, String>();
-		baseVariables.put("platform", "android");
+		baseVariables.putAll(this.processingCenter.staticDataSources());
 		setVariables(variables);
 		try {
 			initializeWebView();
@@ -189,8 +234,9 @@ public final class TealiumTagger {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}
+		}			
 	}
+	
 
 	/**
 	 * This method resets the variables to be passed with each subsequent utag call.
@@ -212,11 +258,31 @@ public final class TealiumTagger {
 	 * Pass null as the value to remove a name/value pair from the set to be passed to utag. 
 	 */
 	public void setVariable(String name, String value) {
-		if (providedVariables != null)
+		if (providedVariables == null)
 			providedVariables = new ConcurrentHashMap<String, String>();
 		providedVariables.put(name, value);
 	}
 
+	/**
+	 * This method is for adding additional key-value pairs of data to all utag calls from the activity
+	 * called from.
+	 * @param variables String Map of data to add
+	 */
+	public void addVariables(Map<String, String> variables){
+		if (variables == null) return;
+		if(providedVariables == null) providedVariables = new ConcurrentHashMap<String, String>(variables);
+		else providedVariables.putAll(variables);
+	}
+		
+	public void loadingAutotrackScreenViewReady(){
+		// Delayed wake up feature provided by Brian Finamore
+		if(loadingVarsReady) 
+		return;
+		loadingVarsReady = true;
+		wakeUp();
+	}
+		
+		
 	/**
 	 * This method must be called in your activity's onPause() method. 
 	 * 
@@ -232,7 +298,7 @@ public final class TealiumTagger {
 	 * Calling this method will allow any queued requests to be loaded and potentially delivered. 
 	 */
 	public void onResume() {
-		wakeUp();
+		wakeUp();	
 	}
 
 	/**
@@ -243,6 +309,52 @@ public final class TealiumTagger {
 	public void onDestroy() {
 		sleep();
 	}
+	
+	
+	/**
+	 * This method should only be called once when your application starts, either from your application's onCreate method
+	 * or your initial activity's onCreate method.
+	 * 
+	 * All the lifecycle tracking methods (applicationCreate, applicationResume, applicationPause, applicationDestroy)
+	 * should be called by your application subclass or by your main activity if
+	 * you application has only one activity.  In the event you have multiple activities, these methods may have to 
+	 * be wrapped in methods that first check to see if your application's activities are active or being masked
+	 * by another application's activities. Note: Successive calls of the same type are automatically suppressed.
+	 * So, if applicationCreate() is called by multiple methods, only the first call will be accepted until another
+	 * application lifecycle method is called (applicationResume(), applicationPause(), applicationDestroy()).
+	 */
+	public void applicationCreate(){
+		Map<String,String> lifecycleData = lifecycle.lifecycleDataForType(CallTypes.CREATE);
+		if (lifecycleData != null) trackItemClicked("lifecycle", lifecycleData);	}
+	
+	/**
+	 * 
+	 * Call this method when your application returns to the foreground. 
+	 * Note: Successive applicationResume() calls are automatically suppressed until
+	 * another application lifecycle call is made.
+	 */
+	public void applicationResume(){
+		Map<String,String> lifecycleData = lifecycle.lifecycleDataForType(CallTypes.RESUME);
+		if (lifecycleData != null) trackItemClicked("lifecycle", lifecycleData);	}
+	
+	/**
+	 * Call this method when your application goes into the background.
+	 * Note: Successive applicationPause() calls are automatically suppressed until
+	 * another application lifecycle call is made.
+	 */
+	public void applicationPause(){
+		Map<String,String> lifecycleData = lifecycle.lifecycleDataForType(CallTypes.PAUSE);
+		if (lifecycleData != null) trackItemClicked("lifecycle", lifecycleData);
+	}
+	
+	/**
+	 * Call this method when your application is being destroyed.
+	 * Note: Successive applicationDestroy() calls are automatically suppressed until
+	 * another application lifecycle call is made.
+	 */
+	public void applicationDestroy(){
+		Map<String,String> lifecycleData = lifecycle.lifecycleDataForType(CallTypes.DESTROY);
+		if (lifecycleData != null) trackItemClicked("lifecycle", lifecycleData);	}
 
 	/**
 	 * Use this method if tracking clicks on objects is desirable. Call this method 
@@ -308,6 +420,7 @@ public final class TealiumTagger {
 		}
 
 		Map<String, String> variablesToSend = new HashMap<String, String>();
+		variablesToSend.putAll(processingCenter.dynamicDataSources());
 		variablesToSend.putAll(baseVariables);
 		if (providedVariables != null) {
 			variablesToSend.putAll(providedVariables);
@@ -344,10 +457,14 @@ public final class TealiumTagger {
 		Editor storageEditor = storage.edit();
 		storageEditor.putString("_tealium_cache_", builder.toString());
 		storageEditor.commit();
+		
 	}
 
 	private synchronized void wakeUp() {
 		if (tealiumEnabled) {
+			return;
+		}
+		if (!loadingVarsReady){
 			return;
 		}
 
@@ -371,12 +488,14 @@ public final class TealiumTagger {
 		Log.d(TAG, "automatically firing a page view for this activity");
 		trackScreenViewed(activity.getTitle().toString());
 		detectNetworkConnection();
+
 	}
 
 	public void callback() {
 		System.out.println("CALLBACK worked");
 	}
 
+	@SuppressLint({ "JavascriptInterface", "SetJavaScriptEnabled" })
 	private void initializeWebView() {
 		webView = new WebView(activity);
 		webView.setEnabled(true);
@@ -413,9 +532,15 @@ public final class TealiumTagger {
 			}
 		});
 
-		webView.loadUrl("http://tealium.hs.llnwd.net/o43/utag/" + account + "/" + profile + "/" + environment
+		webView.loadUrl("https://tags.tiqcdn.com/utag/" + account + "/" + profile + "/" + environment
 				+ "/mobile.html");
-
+	}
+	
+	/**
+	 * Zeros out lifecycle log data.
+	 */
+	public void resetLifecycleLog(){
+		lifecycle.resetLifecycleLog();
 	}
 
 	private synchronized void scheduleNextNetworkDetection() {
@@ -472,12 +597,12 @@ public final class TealiumTagger {
 			return;
 		}
 
-		Log.d(TAG, "Will schedule next item to send if all these are true: " + tealiumEnabled + ":"
-				+ hasInternetConnection + ":" + webViewIsReady + ":" + queue.size());
+		Log.d(TAG, "Will schedule next item to send if all true: Enabled-" + tealiumEnabled + ":"
+				+ "Connected-" + hasInternetConnection + ":" + "Webview-" + webViewIsReady + ":" + "Queue Ready-" + (queue!=null? "true":"false"));
 
 		//start the background timer if the network is reachable and there
 		//are events queued. This timer will quickly send all the pixels in a controlled manner.
-		if (tealiumEnabled && hasInternetConnection && webViewIsReady && queue.size() > 0) {
+		if (tealiumEnabled && hasInternetConnection && webViewIsReady && (queue != null) && queue.size() > 0) {
 			scheduleNextQueuedUTagItem();
 		}
 	}

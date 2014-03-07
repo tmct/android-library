@@ -70,6 +70,9 @@ public class TitleEditor extends Activity implements View.OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		
+
+		
 		tealium = new TealiumTagger(this, TealiumConstants.ACCOUNT, TealiumConstants.PROFILE,
 				TealiumConstants.ENVIRONMENT);
 
