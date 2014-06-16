@@ -26,7 +26,7 @@ public class App extends Application {
 			Tealium.OPT_VOL_INFO | Tealium.OPT_VOL_DEBUG; // Convenient to see logs in LogCat.
 	
 		// In order to do anything with the Tealium Library, it needs to be initialized.
-		Tealium.initialize(this, "your-account", "your-profile", "dev", opts);
+		Tealium.initialize(this, "tealiummobile", "demo", "dev", opts);
 		
 		// Add global custom data to every dispatch here on out.
 		Tealium.addGlobalCustomData(
