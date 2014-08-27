@@ -1,4 +1,4 @@
-Tealium Android Library - 3 &amp; 3c
+Tealium Android Library - 3.1 &amp; 3.1c
 =====================================
 
 **********************
@@ -20,6 +20,7 @@ Tealium's [mobile solution](http://tealium.com/products/enterprise-tag-managemen
     - [3. Run](#3-run)
     - [4. Use Proxy to Verify (optional)](#4-use-proxy-to-verify-optional)
 - [What Next](#what-next)
+	- [ProGuard](#proguard)
 - [Contact Us](#contact-us)
 - [Switching Between Full and Compact](#switching-between-full-and-compact)
 
@@ -66,6 +67,7 @@ package com.example.myapp;
 
 import android.app.Application;
 import com.tealium.library.Tealium;
+import com.tealium.library.Tealium.LogLevel;
 ```
 
 2f. Init the library in the same application class:
@@ -79,7 +81,7 @@ public class MyApplication extends Application {
         // Must initialize after the super.onCreate() call.
         
         Tealium.initialize(Tealium.Config.create(this, "tealiummobile", "demo", "dev")
-			.setLibraryLogLevel(Tealium.LogLevel.DEBUG));
+			.setLibraryLogLevel(LogLevel.DEBUG));
 		
         // (!) Don't forget to replace "tealiummobile", "demo" and "dev" with your own account-profile-target settings before creating your production build. 
 	}
@@ -203,7 +205,7 @@ You can use an HTTP proxy to confirm successful retrieval of configuration data 
 - [HTTP Scoop](http://www.tuffcode.com)
 
 Tealium's multi-CDN configuration address is *http://tags.tiqcdn.com*.  You may have to use the
-[Tealium.Config.setHTTPSEnabled(boolean)](../../wiki/API-Tealium.Config#tealiumconfig-sethttpsenabledboolean-isenabled) method and set to *false* when you initialize the library to permit proxying.
+[Tealium.Config.setHTTPSEnabled(boolean)](../../wiki/API-Tealium.Config#tealiumbuilder-sethttpsenabledboolean-isenabled) method and set to *false* when you initialize the library to permit proxying.
 
 If you have access to the Tealium Community site, detailed instructions on how to setup Charles Proxy on an iDevice can be found at: https://community.tealiumiq.com/posts/624994
 
@@ -220,16 +222,26 @@ Now that you've successfully integrated the library, you should now determine if
 |     |Compact  |  Full
 -------------------------------------|:-------------------------------:|:----:
 jar size                                                            |84 KB | 139 KB
-Initialization time                                                 |~ 10 ms | ~ 10 ms
+Initialization time                                                 |~ 0.01 sec | ~ 0.01 sec
 Memory Usage                                                        |~ 4 KB |~ 4 KB
 [Non-UI AutoTracking](../../wiki/Advanced-Guide#non-ui-autotracking)                |Yes |  Yes
 [UI Autotracking](../../wiki/Advanced-Guide#ui-autotracking)                        |No  |  Yes
 [Mobile Companion](../../wiki/advanced-guide#mobile-companion)  |No  |  Yes
-[Mobile AudienceStream Trace](../../wiki/Advanced-Guide#audiencestream-trace)  |No  |  Yes
+[Mobile AudienceStream Trace](../../wiki/Advanced-Guide#mobile-trace)  |No  |  Yes
 
 Continue with the Compact version, add any needed [additional tracking calls](../../wiki/advanced-guide#universal-track-call) for events or view appearances.
 
 Still can't decide? Browse through our [wiki pages](../../wiki/home) for more info, or check out our [TealiumIQ Community](https://community.tealiumiq.com/series/3333)
+
+#### ProGuard
+
+If you choose to [ProGuard](http://developer.android.com/tools/help/proguard.html) an app bundled with the Tealium Library; please be sure to add the following to your ProGuard configuration:
+
+```
+-keep class com.tealium.library.* {
+    public <init>(...);
+}
+```
 
 ### Contact Us ###
 Questions or comments?
@@ -239,6 +251,12 @@ Questions or comments?
 - Contact your Tealium account manager
 
 ### Upgrade Notice
+
+#### New Features
+
+* **Version 3.1:**
+ * Added UI-Autoracking [Activity exlusion API](../../wiki/API-Tealium.Config#tealiumconfig-setexcludedactivityclassessetclass-extends-activity-excludedactivityclasses)
+* **Version 3.0:**
 
 If upgrading from a Library version earlier than 3.0 note that:
 

@@ -1,14 +1,18 @@
 package com.tealium.example.helper;
 
 
-import com.tealium.library.Tealium.Config;
-import com.tealium.library.Tealium.LogLevel;
-import com.tealium.library.Tealium;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
+import android.webkit.WebView;
+
+import com.tealium.example.BuildConfig;
+import com.tealium.library.Tealium;
+import com.tealium.library.Tealium.Config;
+import com.tealium.library.Tealium.LogLevel;
 
 public final class TealiumHelper {
 
@@ -18,11 +22,17 @@ public final class TealiumHelper {
 	// Not instantiatable.
 	private TealiumHelper () {}
 	
+	@SuppressLint("NewApi")
 	public static void initialize(Application application) {
 		Log.i(TAG, "initialize(" + application.getClass().getSimpleName() + ")");
+		
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && BuildConfig.DEBUG) {
+			WebView.setWebContentsDebuggingEnabled(true);
+		}
+		
 		Tealium.initialize(Config.create(application, "tealiummobile", "demo", "dev")
 			.setHTTPSEnabled(false)
-			.setLibraryLogLevel(LogLevel.VERBOSE));
+			.setLibraryLogLevel(LogLevel.DEBUG));
 		
 		SharedPreferences sp = Tealium.getGlobalCustomData();
 		sp.edit().putInt(KEY_TEAL_INIT_COUNT, sp.getInt(KEY_TEAL_INIT_COUNT, 0) + 1).commit();

@@ -3,12 +3,16 @@ package com.tealium.example.helper;
 
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 
+import com.tealium.example.BuildConfig;
 import com.tealium.library.Tealium;
 import com.tealium.library.Tealium.LogLevel;
 
@@ -20,8 +24,14 @@ public final class TealiumHelper {
 	// Not instantiatable.
 	private TealiumHelper () {}
 	
+	@SuppressLint("NewApi")
 	public static void initialize(Application application) {
 		Log.i(TAG, "initialize(" + application.getClass().getSimpleName() + ")");
+		
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && BuildConfig.DEBUG) {
+			WebView.setWebContentsDebuggingEnabled(true);
+		}
+		
 		Tealium.initialize(Tealium.Config.create(application, "tealiummobile", "demo", "dev")
 			.setHTTPSEnabled(false)
 			.setLibraryLogLevel(LogLevel.VERBOSE)

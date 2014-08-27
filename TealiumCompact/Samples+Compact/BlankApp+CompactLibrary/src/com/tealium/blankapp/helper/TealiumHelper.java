@@ -2,15 +2,25 @@ package com.tealium.blankapp.helper;
 
 import java.util.Map;
 
+import com.tealium.blankapp.BuildConfig;
 import com.tealium.library.Tealium;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.os.Build;
 import android.view.View;
+import android.webkit.WebView;
 
 public final class TealiumHelper {
 
+	@SuppressLint("NewApi")
 	public static void initialize(Application application) {
+		
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && BuildConfig.DEBUG) {
+			WebView.setWebContentsDebuggingEnabled(true);
+		}
+		
 		Tealium.initialize(Tealium.Config.create(application, "tealiummobile", "demo", "dev")
 				.setLibraryLogLevel(Tealium.LogLevel.DEBUG));
 	}
