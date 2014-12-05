@@ -1,4 +1,4 @@
-Tealium Android Library - 3.1 &amp; 3.1c
+Tealium Android Library - 4 &amp; 4c
 =====================================
 
 **********************
@@ -7,9 +7,11 @@ Tealium Android Library - 3.1 &amp; 3.1c
 
 ### Brief ###
 
-These frameworks provide the means to tag native Android applications for the purposes of leveraging [Tealium's tag management platform (Tealium IQ)](http://tealium.com/products/enterprise-tag-management/). 
+The frameworks included allow the native tagging of a mobile application once and then configuration of third-party analytic services remotely through [Tealium IQ](http://tealium.com/products/enterprise-tag-management/); all without needing to recode and redeploy an app for every update to these services.
 
-Tealium's [mobile solution](http://tealium.com/products/enterprise-tag-management/mobile/) permits an app to add, remove or edit analytic services remotely, in real-time, without requiring a code rebuild or new release to take effect.
+First time implementations should read the [How Tealium Works](../../wiki/how-tealium-works) wiki page for a brief overview of how Tealium's SDK differs from conventional analytic SDKs. For any additional information, consult the [wiki home page](../../wiki/home).
+
+The remainder of this document provides quick install instructions.
 
 ###Table of Contents###
 
@@ -27,13 +29,11 @@ Tealium's [mobile solution](http://tealium.com/products/enterprise-tag-managemen
 ###Requirements###
 
 - [Android ADT Bundle with Eclipse](http://developer.android.com/sdk/index.html)
-- Minimum target Android Version:
- - 8 (AVD tested)
- - 9 (Live device tested)
- - 14 (Recommended)
+	- NOTE: Written from the Eclipse perspective but compatible with any Android development environment.
+- Minimum target Android Version: 9 / GINGERBREAD
 
 ### Quick Start ###
-This guide presumes you have already created an [Android app using Eclipse](https://developer.android.com/training/basics/firstapp/index.html?hl=it). Follow the below steps to add Tealium's Compact library (3c) to it.  Discussion on which version is ultimately best for you can be found in the [What Next](#what-next) section.
+This guide presumes you have already created an [Android app using Eclipse](https://developer.android.com/training/basics/firstapp/index.html?hl=it). Follow the below steps to add Tealium's Compact library (4c) to it.  Discussion on which version is ultimately best for you can be found in the [What Next](#what-next) section.
 
 ####1. Clone/Copy Library####
 onto your dev machine by clicking on the *Clone to Desktop* or *Download ZIP* buttons on the main repo page.
@@ -44,7 +44,7 @@ onto your dev machine by clicking on the *Clone to Desktop* or *Download ZIP* bu
 
 2a. Create a "libs" directory in your project root, if not already present. 
 
-2b. From the *android-library/TealiumCompact* folder, drag & drop the [tealium.3c.jar](TealiumCompact/tealium.3c.jar) file into your Eclipse project's Package Explorer window.
+2b. From the *android-library/TealiumCompact* folder, drag & drop the [tealium.4c.jar](TealiumCompact/tealium.4c.jar) file into your Eclipse project's Package Explorer window.
 
 ![](../../wiki/images/android_addtoproject.png)
 
@@ -67,6 +67,7 @@ package com.example.myapp;
 
 import android.app.Application;
 import com.tealium.library.Tealium;
+import com.tealium.library.Tealium.Config;
 import com.tealium.library.Tealium.LogLevel;
 ```
 
@@ -80,7 +81,7 @@ public class MyApplication extends Application {
 		super.onCreate();
         // Must initialize after the super.onCreate() call.
         
-        Tealium.initialize(Tealium.Config.create(this, "tealiummobile", "demo", "dev")
+        Tealium.initialize(Config.create(this, "tealiummobile", "demo", "dev")
 			.setLibraryLogLevel(LogLevel.DEBUG));
 		
         // (!) Don't forget to replace "tealiummobile", "demo" and "dev" with your own account-profile-target settings before creating your production build. 
@@ -134,7 +135,7 @@ public class MyApplication extends Application {
 <!-- ... </manifest> -->
 ```
 
-2h. [*Tealium.onResume(Activity)*](../../wiki/API-Tealium#void-onresumeactivity-activity) and [*TealiumOnPause(Activity)*](../../wiki/API-Tealium#void-onpauseactivity-activity) methods will need to be added to each of your activity classes if you minimum SDK &lt; 14 (ICE CREAM SANDWICH).
+2h. [*Tealium.onResume(Activity)*](../../wiki/API-Tealium#void-onresumeactivity-activity) and [*Tealium.onPause(Activity)*](../../wiki/API-Tealium#void-onpauseactivity-activity) methods will need to be added to each of your activity classes if you minimum SDK &lt; 14 (ICE CREAM SANDWICH).
 
 Example:
 
@@ -205,7 +206,7 @@ You can use an HTTP proxy to confirm successful retrieval of configuration data 
 - [HTTP Scoop](http://www.tuffcode.com)
 
 Tealium's multi-CDN configuration address is *http://tags.tiqcdn.com*.  You may have to use the
-[Tealium.Config.setHTTPSEnabled(boolean)](../../wiki/API-Tealium.Config#tealiumbuilder-sethttpsenabledboolean-isenabled) method and set to *false* when you initialize the library to permit proxying.
+[Tealium.Config.setHTTPSEnabled(boolean)](../../wiki/API-Tealium.Config#tealiumconfig-sethttpsenabledboolean-isenabled) method and set to *false* when you initialize the library to permit proxying.
 
 If you have access to the Tealium Community site, detailed instructions on how to setup Charles Proxy on an iDevice can be found at: https://community.tealiumiq.com/posts/624994
 
@@ -213,7 +214,7 @@ Alternatively, you can use an analytic service with real-time reporting to confi
 
 ###Switching Between Full and Compact
 
-Swapping the [tealium.3.jar](TealiumFull/tealium.3.jar) with [tealium.3c.jar](TealiumCompact/tealium.3c.jar) (or vice versa) is simple; just replace the undesired library in the *libs/* directory with the desired library. Since the Full and Compact libraries have identical APIs; the swap will produce no errors.
+Swapping the [tealium.4.jar](TealiumFull/tealium.4.jar) with [tealium.4c.jar](TealiumCompact/tealium.4c.jar) (or vice versa) is simple; just replace the undesired library in the *libs/* directory with the desired library. Since the Full and Compact libraries have identical APIs; the swap will produce no errors.
 
 ### What Next###
 Now that you've successfully integrated the library, you should now determine if the [Compact or Full Library versions](../../wiki/compact-vs-full) best fit your needs. Below are the key differences:
@@ -221,9 +222,9 @@ Now that you've successfully integrated the library, you should now determine if
 
 |     |Compact  |  Full
 -------------------------------------|:-------------------------------:|:----:
-jar size                                                            |84 KB | 139 KB
+jar size                                                            |94 KB | 169 KB
 Initialization time                                                 |~ 0.01 sec | ~ 0.01 sec
-Memory Usage                                                        |~ 4 KB |~ 4 KB
+Memory Usage                                                        |~ 604 KB |~ 741 KB
 [Non-UI AutoTracking](../../wiki/Advanced-Guide#non-ui-autotracking)                |Yes |  Yes
 [UI Autotracking](../../wiki/Advanced-Guide#ui-autotracking)                        |No  |  Yes
 [Mobile Companion](../../wiki/advanced-guide#mobile-companion)  |No  |  Yes
@@ -235,11 +236,16 @@ Still can't decide? Browse through our [wiki pages](../../wiki/home) for more in
 
 #### ProGuard
 
-If you choose to [ProGuard](http://developer.android.com/tools/help/proguard.html) an app bundled with the Tealium Library; please be sure to add the following to your ProGuard configuration:
+If you choose to [ProGuard](http://developer.android.com/tools/help/proguard.html) an app bundled with the Tealium Library; please be sure to start with the default configuration located at ```${sdk.dir}/tools/proguard/proguard-android.txt```. The following rules will also need to be added to the default: 
 
 ```
+-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+   public *;
+}
+
 -keep class com.tealium.library.* {
     public <init>(...);
+    <methods>;
 }
 ```
 
@@ -254,6 +260,9 @@ Questions or comments?
 
 #### New Features
 
+* **Version 4.0**
+ * Added Support for Mobile Publish Settings
+ * Removed Methods/Fields deprecated in **Version 3**.
 * **Version 3.1:**
  * Added UI-Autoracking [Activity exlusion API](../../wiki/API-Tealium.Config#tealiumconfig-setexcludedactivityclassessetclass-extends-activity-excludedactivityclasses)
 * **Version 3.0:**
