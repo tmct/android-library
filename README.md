@@ -308,7 +308,6 @@ If you choose to [ProGuard](http://developer.android.com/tools/help/proguard.htm
 Questions or comments?
 
 - Post code questions in the [issues page.](../../issues)
-- Email us at [mobile_support@tealium.com](mailto:mobile_support@tealium.com)
 - Contact your Tealium account manager
 
 ### Upgrade Notice
