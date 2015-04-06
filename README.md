@@ -358,3 +358,8 @@ void onPause(Activity)
 ```
 
 
+--------------------------------------------
+
+Copyright (C) 2012-2015, Tealium Inc.
+
+
