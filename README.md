@@ -1,4 +1,4 @@
-Tealium Android Library - 4.1 &amp; 4.1c
+Tealium Android Library - 4.1.1 &amp; 4.1.1c
 =====================================
 
 **********************
@@ -313,7 +313,9 @@ Questions or comments?
 ### Upgrade Notice
 
 #### New Features
-
+* **Version 4.1.1**
+ * Corrected ```platform_version``` and ```os_version``` data sources
+ * Bug fixes  
 * **Version 4.1**
  * Added Support for [TagBridge](../../wiki/Features#tag-bridge-api)
  * Added Android Studio compatible Sample Apps.

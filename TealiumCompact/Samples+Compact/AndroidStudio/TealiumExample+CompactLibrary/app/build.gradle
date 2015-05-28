@@ -20,5 +20,5 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:21.0.3'
-    compile files('libs/tealium.4.1c.jar')
+    compile files('libs/tealium.4.1.1c.jar')
 }
