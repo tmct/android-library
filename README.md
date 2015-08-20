@@ -313,6 +313,8 @@ Questions or comments?
 ### Upgrade Notice
 
 #### New Features
+* **Version 4.1.3**
+ * Added setAcceptCookie API to Tealium.Config.
 * **Version 4.1.1**
  * Corrected ```platform_version``` and ```os_version``` data sources
  * Bug fixes  
