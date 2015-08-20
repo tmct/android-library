@@ -1,4 +1,4 @@
-Tealium Android Library - 4.1.1 &amp; 4.1.1c
+Tealium Android Library - 4.1.3 &amp; 4.1.3c
 =====================================
 
 **********************
