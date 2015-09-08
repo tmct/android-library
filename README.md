@@ -1,4 +1,4 @@
-Tealium Android Library - 4.1.3 &amp; 4.1.3c
+Tealium Android Library - 4.1.4 &amp; 4.1.4c
 =====================================
 
 **********************
@@ -313,6 +313,13 @@ Questions or comments?
 ### Upgrade Notice
 
 #### New Features
+* **Version 4.1.4**
+ * Added setAcceptThirdPartyCookie API to Tealium.Config
+ * Removed Automatic lowercasing of data source Keys  
+* **Version 4.1.3**
+ * Added setAcceptCookie API to Tealium.Config
+* **Version 4.1.2**
+ * Corrected a bug where passing a non-anticipated object in the Tealium.track(...) method failed to populate various data source keys
 * **Version 4.1.1**
  * Corrected ```platform_version``` and ```os_version``` data sources
  * Bug fixes  

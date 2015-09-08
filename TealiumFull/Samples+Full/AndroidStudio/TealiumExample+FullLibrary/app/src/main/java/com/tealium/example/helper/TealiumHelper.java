@@ -32,7 +32,7 @@ public final class TealiumHelper {
 		
 		Tealium.initialize(Config.create(application, "tealiummobile", "demo", "dev")
 			.setHTTPSEnabled(false)
-			.setLibraryLogLevel(LogLevel.DEBUG));
+			.setLibraryLogLevel(LogLevel.VERBOSE));
 		
 		SharedPreferences sp = Tealium.getGlobalCustomData();
 		sp.edit().putInt(KEY_TEAL_INIT_COUNT, sp.getInt(KEY_TEAL_INIT_COUNT, 0) + 1).commit();
