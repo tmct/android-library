@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-	<string name="error_unabletoplayvideo">Sorry, this device cannot play this video.</string>
-	<string name="error_hasnotbeenimplemented">Sorry; this control has not been implemented.</string>
-    <string name="error_hasnotbeenimplemented_format">Sorry, %s has not been implemented.</string>
-</resources>
