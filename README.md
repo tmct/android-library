@@ -2,7 +2,7 @@ Tealium Android Library - 4.1.4 &amp; 4.1.4c
 =====================================
 
 **********************
-<img align="left" src="https://res.cloudinary.com/dfpz40r7j/image/upload/v1479312678/warning-icon-60_yd8bwd.png"> This library has been replaced by the [tealium-android](https://github.com/tealium/tealium-ios) repository. This version can still be used with Tealium services but no further development or bug fixes planned.
+<img align="left" src="https://res.cloudinary.com/dfpz40r7j/image/upload/v1479312678/warning-icon-60_yd8bwd.png"> This library has been replaced by the [tealium-android](https://github.com/tealium/tealium-android) repository. This version can still be used with Tealium services but no further development or bug fixes planned.
 **********************
 
 ### Brief ###
